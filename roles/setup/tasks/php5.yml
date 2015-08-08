@@ -13,4 +13,4 @@
    - php5-mysql
    - php5-xmlrpc
    - php5-mcrypt
-
+  tags: php

@@ -6,9 +6,10 @@
         group=root
         mode=0644
         backup={{ backup }}
+  tags: keyboard
 
 - name: update keymap
   shell: /etc/init.d/keyboard-setup reload
   #shell: dpkg-reconfigure --frontend noninteractive keyboard-configuration
-
+  tags: keyboard
 

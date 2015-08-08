@@ -6,6 +6,8 @@
          group=root
          mode=0644
          backup={{ backup }}
+  tags: timezone
 
 - name: update timezone
   shell: dpkg-reconfigure --frontend noninteractive tzdata
+  tags: timezone
