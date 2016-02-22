@@ -1,0 +1,10 @@
+---
+- name: apt-get git install
+  apt: pkg={{ item }}
+       force=yes
+       update_cache=yes
+  with_items:
+   - git-core
+  tags: git
+
+

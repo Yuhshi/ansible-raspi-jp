@@ -30,16 +30,16 @@
     enabled: yes
   tags: mysqld
 
-#http://yteraoka.github.io/ansible-tutorial/#mysql
-- name: Create database
-  mysql_db: db={{ dbname }} state=present encoding=utf8
-  tags: mysqld
-
-# wordpress 用 DB ユーザーの作成
-- name: Create database user
-  mysql_user: >
-    name={{ dbuser }}
-    password="{{ dbpassword }}"
-    priv={{ dbname }}.*:ALL
-    state=present
-  tags: mysqld
+##http://yteraoka.github.io/ansible-tutorial/#mysql
+#- name: Create database
+#  mysql_db: db={{ dbname }} state=present encoding=utf8
+#  tags: mysqld
+#
+## wordpress 用 DB ユーザーの作成
+#- name: Create database user
+#  mysql_user: >
+#    name={{ dbuser }}
+#    password="{{ dbpassword }}"
+#    priv={{ dbname }}.*:ALL
+#    state=present
+#  tags: mysqld

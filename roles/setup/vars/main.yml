@@ -2,3 +2,7 @@
 dbname: wp_user0001
 dbuser: wp_user0001
 dbpassword: wp*password
+
+ffmpeg_prefix: /usr/local/ffmpeg
+make_jobs: "{{ansible_processor_count * ansible_processor_cores}}"
+

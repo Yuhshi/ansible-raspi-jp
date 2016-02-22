@@ -1,0 +1,83 @@
+---
+- name: apt-get rtmpdump mplayer swftools libxml2-utils yasm autoconf install
+  apt: pkg={{ item }}
+       force=yes
+       update_cache=yes
+  with_items:
+   - rtmpdump
+   - mplayer
+   - swftools
+   - libxml2-utils
+   - yasm
+   - autoconf
+   - libtool
+  tags: ffmpeg-etc
+
+- name: download x264
+  git: repo=git://git.videolan.org/x264.git dest=/tmp/x264
+- name: compile, install x264
+  sudo: yes
+  shell: >-
+    PATH={{ ffmpeg_prefix }}/bin:$PATH &&
+    ./configure --prefix={{ ffmpeg_prefix }} --enable-shared --enable-pic --extra-cflags="-march=native" &&
+    make -j{{ make_jobs }}
+    make install &&
+    ldconfig {{ ffmpeg_prefix }}/lib
+    chdir=/tmp/x264
+    creates={{ ffmpeg_prefix }}/bin/x264
+
+- name: download libfdk_aac
+  git: repo=git://git.code.sf.net/p/opencore-amr/fdk-aac dest=/tmp/libfdk_aac
+- name: compile, install libfdk_aac
+  shell: >-
+    ./autogen.sh &&
+    ./configure --prefix={{ ffmpeg_prefix }} -enable-shared &&
+    make -j {{ make_jobs }}
+    make install &&
+    ldconfig {{ ffmpeg_prefix }}/lib
+    chdir=/tmp/libfdk_aac
+    creates={{ ffmpeg_prefix }}/lib/libfdk-aac.so
+
+- name: download libmp3lame
+  get_url: url=https://sourceforge.net/projects/lame/files/latest/download?source=files dest=/tmp/lame.tar.gz
+- name: extract libmp3lame
+  shell: >-
+    tar zxf lame.tar.gz &&
+    mv /tmp/`tar tvzf lame.tar.gz | head -1 | awk -F " " '{ print $NF }' | cut -f 1 -d "/"` /tmp/lame
+    chdir=/tmp
+    creates=/tmp/lame
+- name: compile libmp3lame
+  shell: >-
+    ./configure --prefix={{ ffmpeg_prefix }} &&
+    make -j{{ make_jobs }}
+    chdir=/tmp/lame
+    creates=libmp3lame/libmp3lame.la
+- name: install libmp3lame
+  sudo: yes
+  shell: >-
+    make install &&
+    ldconfig {{ ffmpeg_prefix }}/lib
+    chdir=/tmp/lame
+    creates={{ ffmpeg_prefix }}/lib/libmp3lame.so
+
+- name: download ffmpeg
+  git: repo=git://github.com/FFmpeg/FFmpeg dest=/tmp/ffmpeg
+- name: compile, install ffmpeg
+  sudo: yes
+  shell: >-
+    PATH={{ ffmpeg_prefix }}/bin:$PATH &&
+    PKG_CONFIG_PATH={{ ffmpeg_prefix }}/lib/pkgconfig:$PKG_CONFIG_PATH &&
+    ./configure --prefix={{ ffmpeg_prefix }} --cc=gcc --extra-ldflags='-L{{ffmpeg_prefix}}/lib' --extra-cflags='-I{{ ffmpeg_prefix }}/include -march=native' --optflags='-O2 -ffast-math -fomit-frame-pointer -finline-functions' --disable-avisynth --enable-avfilter --enable-libfdk-aac --enable-libmp3lame --enable-libx264 --enable-postproc --enable-pthreads --enable-shared --enable-swscale --enable-gpl --enable-nonfree --enable-version3 &&
+    make -j{{make_jobs}}
+    make install &&
+    ldconfig {{ ffmpeg_prefix }}/lib
+    chdir=/tmp/ffmpeg
+    creates={{ ffmpeg_prefix }}/bin/ffmpeg
+- name: copy ffmpeg_path.sh
+  copy:
+    src: ffmpeg_path.sh
+    dest: /etc/profile.d/ffmpeg_path.sh
+    owner: root
+    group: root
+    mode: 644
+

@@ -6,7 +6,6 @@
   with_items:
    - apache2
    - libapache2-mod-php5
-   - phpmyadmin
   tags: apache2
 
 - name: enable mod_rewrite

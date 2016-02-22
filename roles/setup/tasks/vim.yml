@@ -1,0 +1,9 @@
+---
+- name: apt-get vim install
+  apt: pkg={{ item }}
+       force=yes
+       update_cache=yes
+  with_items:
+   - vim
+  tags: vim
+
